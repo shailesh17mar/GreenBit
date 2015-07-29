@@ -1,0 +1,50 @@
+<ion-view view-title="Greenbit">
+  <ion-content style="background: #e8ebf1;" class="padding">
+    <div class="list card">
+      <div class="item item-avatar">
+        <img src="img/deploy-header.png">
+        <h2>Change settings</h2>
+        <p>
+          Experiment with the plant.
+        </p>
+      </div>
+      <div class="item item-body">
+          <ion-item>
+            <div class="row">
+               <div class="button-bar ">
+                <a class="button button-assertive" ng-click="getPlantSettings('Tomato')">Tomato</a>
+                <a class="button button-royal" ng-click="getPlantSettings('Tulsi')">Tulsi</a>
+              </div>
+            </div>
+            <div class="row padding-25">
+               <div class="button-bar ">
+                <a class="button button-balanced" ng-click="getPlantSettings('Peppermint')">Peppermint</a>
+                <a class="button button-assertive" ng-click="getPlantSettings('Rose')">Rose</a>
+              </div>
+            </div>            
+          </ion-item>
+        <form>
+          <ion-item class="range range-assertive">
+            <i class="icon ion-ios-lightbulb-outline"></i>
+              <input type="range" ng-model="heat" value="50" min="0" max="100">
+            <i class="icon ion-ios-lightbulb"></i>
+          </ion-item>
+          <ion-item class="range range-positive">
+            <i class="icon ion-ios-rainy-outline"></i>
+              <input type="range" ng-model="water" value="50" min="0" max="100">
+            <i class="icon ion-ios-rainy"></i>
+          </ion-item>
+          <ion-item class="range range-energized">
+            <i class="icon ion-ios-sunny-outline"></i>
+              <input type="range" ng-model="light" value="50" min="0" max="100">
+            <i class="icon ion-ios-sunny"></i>
+          </ion-item>
+          <div class="button-bar bar-dark">
+            <a class="button" ng-click="applyCurrentSettings()">Apply</a>
+            <a class="button" ng-click="reset()">Reset</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

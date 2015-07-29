@@ -1,0 +1,51 @@
+<ion-view view-title="Greenbit">
+  <ion-content style="background: #e8ebf1;" class="padding">
+    <div class="list card">
+      <div class="item item-avatar">
+        <img src="img/ionic-header.png">
+        <h2>Welcome</h2>
+        <p>
+          Now everyone can grow!
+        </p>
+      </div>
+      <div class="item item-body">
+        <div class="row">
+            <p>
+              Ionic User is the backbone on which all ionic.io services are built.  The service easily tracks all the
+              users of your app, along with any additional data you wish to track.  It serves as the backbone for powerful
+              analytics and push notification targeting.  See the docs <a href="http://docs.ionic.io/identify/">here</a>
+              for more info.
+            </p>
+        </div>
+        <div class="list card">
+          <div class="row">
+            <div class="col col-33">
+              <a href="#" class="item item-icon-left">
+                <i class="icon ion-ios-sunny"></i>
+                <span>{{reading.light}}</span>
+              </a>
+            </div>
+
+            <div class="col col-33">
+              <a href="#" class="item item-icon-left">
+                <i class="icon ion-waterdrop"></i>
+                <span>{{reading.temperature}}</span>
+              </a>
+            </div>
+
+            <div class="col col-33">
+              <a href="#" class="item item-icon-left">
+                <i class="icon ion-thermometer"></i>
+                <span>{{reading.moisture}}</span>
+              </a>
+            </div>
+
+          </div>
+        </div>
+        <div class="row">
+          <button class="button button-block icon-left ion-social-twitter button-positive" ng-click="tweet()">Tweet Status</button>
+        </div>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>
