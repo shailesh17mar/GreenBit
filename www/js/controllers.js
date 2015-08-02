@@ -1,100 +1,114 @@
-angular.module('starter.controllers', ['chart.js','firebase'])
+  angular.module('starter.controllers', ['firebase'])
 
-.factory("FirebaseClient", function() {
-  var ref = new Firebase("https://greenbit.firebaseio.com/");
-  return ref;
-})
-
-.controller('HomeCtrl', function($scope, FirebaseClient, $firebaseArray) {
-
-  $scope.tweet =  function(){
-    var firebaseObject = FirebaseClient.child('Tweet');
-    FirebaseClient.update({Tweet :'Happy planting: temperature: '+ $scope.reading.temperature + ' light: '+ $scope.reading.light + ' moisture: '+ $scope.reading.moisture});
-  };  
-
-  var logs = $firebaseArray(FirebaseClient.child('/logs'))
-  logs.$loaded()
-  .then(function(x) {
-      var key = logs.$keyAt(0);
-      $scope.reading = logs.$getRecord(key);
+  .factory("FirebaseClient", function() {
+    var ref = new Firebase("https://greenbit.firebaseio.com/");
+    return ref;
   })
-  .catch(function(error) {
-    console.log("Error:", error);
+
+  .controller('HomeCtrl', function($scope, FirebaseClient, $firebaseArray, $firebaseObject, $ionicModal) {
+
+    $scope.tweet =  function(){
+      var firebaseObject = FirebaseClient.child('Tweet');
+      var message = document.querySelector('textarea').value;
+      FirebaseClient.update({Tweet : message});
+      $scope.closeModal();
+    };  
+
+    var settings = $firebaseObject(FirebaseClient.child('currentSettings'));
+    settings.$loaded(function(){
+
+        $scope.reading = settings;
+        $scope.tweetMessage = '#IntelMaker #GreenBit Temperature: '+ $scope.reading.temperature + ' DEG | Light: '+ $scope.reading.light + ' LUX | Moisture: '+ $scope.reading.moisture + ' ppm';
+    
+    });
+
+  // .fromTemplateUrl() method
+  $ionicModal.fromTemplateUrl('templates/tweet.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(modal) {
+    $scope.modal = modal;
   });
 
+  $scope.openModal = function() {
+    $scope.modal.show();
+  };
+  $scope.closeModal = function() {
+    $scope.modal.hide();
+  };
+  //Cleanup the modal when we're done with it!
+  $scope.$on('$destroy', function() {
+    $scope.modal.remove();
+  });
+  // Execute action on hide modal
+  $scope.$on('modal.hidden', function() {
+    // Execute action
+  });
+  // Execute action on remove modal
+  $scope.$on('modal.removed', function() {
+    // Execute action
+  });
 
+  })
 
-})
+  .controller('SnapsCtrl', function($scope, FirebaseClient, $firebaseArray) {
 
-.controller('UserCtrl', function($scope, $rootScope, $ionicUser) {
-  /**
-   * Identifies a new user with the Ionic User service (read the docs at http://docs.ionic.io/identify/). This should be
-   * called before any other registrations take place.
-   **/
-  $scope.identifyUser = function() {
-    console.log('Ionic User: Identifying with Ionic User service');
+    $scope.images = $firebaseArray(FirebaseClient.child('snaps'));
+    $scope.takePicture = function(){
+      FirebaseClient.update({snap:true});
+    }
 
-    var user = $ionicUser.get();
-    if(!user.user_id) {
-      // Set your user_id here, or generate a random one.
-      user.user_id = $ionicUser.generateGUID()
+  })
+
+  .controller('AnalyticsCtrl', function($scope, $firebaseArray, FirebaseClient) {
+    var logs = $firebaseArray(FirebaseClient.child('logs'))
+    logs.$loaded()
+    .then(function(x) {
+        var key = logs.$keyAt(0);
+        $scope.reading = logs.$getRecord(key);
+        $scope.labels = ["0", "5", "10", "15", "20"];
+        $scope.data = [[28, 48, 40, 19, 86, 27, 90] ];
+    })
+    .catch(function(error) {
+      console.log("Error:", error);
+    });
+
+  })
+
+  .controller('ExperimentCtrl', function($scope, FirebaseClient, $firebaseArray, $firebaseObject) {
+    
+    $scope.currentSettings = $firebaseObject(FirebaseClient.child('currentSettings'));
+    $scope.plants = $firebaseArray(FirebaseClient.child('plants'));
+
+    $scope.changePlant = function(plant){
+      $scope.currentSettings = $scope.plants.$getRecord(plant);
+      $scope.currentSettings.plant = plant;
     };
 
-    // Add some metadata to your user object.
-    angular.extend(user, {
-      name: 'Ionitron',
-      message: 'I come from planet Ion'
-    });
+    $scope.reset =  function(){
+      var plant = $scope.currentSettings.plant;
+      plant.lightState =true;
+      var list = $firebaseArray(FirebaseClient.child('plants'));
+      list.$loaded().then(function(data) {
+        $scope.currentSettings = list.$getRecord(plant);
+        $scope.currentSettings.plant = plant;
+      })
+      .catch(function(error) {
+        console.error("Error:", error);
+      });
+    };
 
-    // Identify your user with the Ionic User Service
-    $ionicUser.identify(user).then(function(){
-      alert('Successfully identified user ' + user.name + '\n ID ' + user.user_id);
-    });
-  };
-})
+    $scope.apply = function(){
+      var currentSettings = {
+        temperature: parseInt($scope.currentSettings.temperature),
+        light: parseInt($scope.currentSettings.light),
+        moisture: parseInt($scope.currentSettings.moisture),
+        plant: $scope.currentSettings.plant,
+        lightOn: parseInt($scope.currentSettings.lightOn),
+        lightOff:parseInt( $scope.currentSettings.lightOff),
+        lightState: $scope.currentSettings.lightState
+      };
+      FirebaseClient.child('currentSettings').set(currentSettings);
+    };
 
-.controller('PushCtrl', function($scope, FirebaseClient, $firebaseArray) {
-
-  $scope.images = $firebaseArray(FirebaseClient.child('snaps'));
-  $scope.takePicture = function(){
-    //send request for new picture 
-  }
-
-})
-
-.controller('AnalyticsCtrl', function($scope, $firebaseArray) {
-  var logs = $firebaseArray(FirebaseClient.child('/logs'))
-  logs.$loaded()
-  .then(function(x) {
-      var key = logs.$keyAt(0);
-      $scope.reading = logs.$getRecord(key);
-  $scope.labels = ["0", "5", "10", "15", "20"];
-  $scope.data = [[28, 48, 40, 19, 86, 27, 90] ];
-  })
-  .catch(function(error) {
-    console.log("Error:", error);
   });
-
-})
-
-.controller('DeployCtrl', function($scope, FirebaseClient, $firebaseArray) {
-  
-  $scope.heat=78;
-  $scope.water=44;
-  $scope.light=21;
-  $scope.plants = $firebaseArray(FirebaseClient.child('plants'));
-
-  $scope.getPlantSettings =  function(plant){
-    var settings = $scope.plants.$getRecord('Tomato');
-    settings.splice('|');
-  };
-
-  $scope.applyCurrentSettings = function(){
-
-  };
-
-  $scope.reset = function(){
-
-  };
-
-});
